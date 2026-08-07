@@ -48,13 +48,13 @@ module.exports = {
                         }
 
                         Object.keys(categories).sort().forEach((category) => {
-                                msg += `\n╭─────⭓ ${category.toUpperCase()}`;
+                                msg += `\n╭─────🎀 ${category.toUpperCase()}`;
                                 const names = categories[category].commands.sort();
                                 for (let i = 0; i < names.length; i += 3) {
                                         const cmds = names.slice(i, i + 3).map((item) => `✧${item}`);
                                         msg += `\n│ ${cmds.join("  ")}`;
                                 }
-                                msg += `\n╰────────────⭓\n`;
+                                msg += `\n╰────────────🎀\n`;
                         });
 
                         const totalCommands = commands.size;
