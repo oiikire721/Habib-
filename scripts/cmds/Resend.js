@@ -3,7 +3,7 @@ module.exports = {
     name: "iginfo",
     aliases: ["instagram", "insta", "ig"],
     version: "2.2",
-    author: "Sk Habibulla",
+    author: "SK HABIBULLA",
     countDown: 5,
     role: 0,
     shortDescription: {
