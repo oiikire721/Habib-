@@ -2,7 +2,7 @@ module.exports = {
   config: {
     name: "iginfo",
     aliases: ["instagram", "insta", "ig"],
-    version: "2.0",
+    version: "2.2",
     author: "Sk Habibulla",
     countDown: 5,
     role: 0,
@@ -68,7 +68,17 @@ module.exports = {
 
       try { await api.unsendMessage(loading.messageID); } catch (e) {}
 
-      const pic = user.profile_pic_url_hd || user.profile_pic_url;
+      // ===== Full HD Profile Picture পাওয়ার চেষ্টা =====
+      let pic = user.profile_pic_url_hd || user.profile_pic_url || user.hd_profile_pic_url_info?.url;
+
+      if (pic) {
+        // সাইজ প্যারামিটার সরিয়ে সবচেয়ে বড় কোয়ালিটি নেওয়া
+        pic = pic
+          .replace(/\/s\d+x\d+\//, "/")           // s150x150, s320x320 ইত্যাদি সরানো
+          .replace(/\/c\d+\.\d+\.\d+\.\d+\//, "/") // crop প্যারামিটার সরানো
+          .replace(/\?.*$/, "")                   // query string সরানো (কখনো কখনো লাগে)
+          + "?stp=dst-jpg_e35";                   // ভালো কোয়ালিটি ফোর্স করা
+      }
 
       if (pic) {
         try {
@@ -77,7 +87,16 @@ module.exports = {
             attachment: await global.utils.getStreamFromURL(pic)
           });
         } catch (e) {
-          return message.reply(msg);
+          // যদি হাই কোয়ালিটি ফেইল করে, আসল URL দিয়ে চেষ্টা
+          try {
+            const originalPic = user.profile_pic_url_hd || user.profile_pic_url;
+            return message.reply({
+              body: msg,
+              attachment: await global.utils.getStreamFromURL(originalPic)
+            });
+          } catch (e2) {
+            return message.reply(msg);
+          }
         }
       }
 
@@ -92,7 +111,7 @@ module.exports = {
         return message.reply(`❌ Username "${username}" পাওয়া যায়নি!`);
       }
 
-      if (error.response?.status === 401 || error.response?.status === 403) {
+      if (error.response?.status === 401 || error.response?.status === 403 || error.response?.status === 402) {
         return message.reply("❌ API Key ভুল আছে অথবা ফ্রি কোটা শেষ হয়ে গেছে।");
       }
 
